@@ -12,198 +12,7 @@
   <meta property="og:description" content="Personal blog of Jared Yeung, turning ideas into interactive realities. Explore thoughts on development, design, and technology innovations.">
   <link rel="stylesheet" href="css/global.css">
 
-  <style>
-        /* ===== MINIMALIST MODAL ===== */
-        .image-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.98);
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(8px);
-            z-index: 1000;
-        }
-
-        .image-modal.active {
-            display: flex;
-        }
-
-        .modal-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* Minimalist close button */
-        .modal-close {
-            position: absolute;
-            top: 30px;
-            right: 30px;
-            width: 44px;
-            height: 44px;
-            background: none;
-            border: none;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 44px;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.2s;
-            z-index: 10001;
-            line-height: 1;
-            padding: 0;
-        }
-
-        .modal-close:hover {
-            color: white;
-            transform: scale(1.1);
-        }
-
-        /* Minimalist navigation arrows */
-        .modal-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 50px;
-            height: 50px;
-            background: none;
-            border: none;
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 40px;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.2s;
-            z-index: 10001;
-            line-height: 1;
-            padding: 0;
-        }
-
-        .modal-nav:hover {
-            color: white;
-            transform: translateY(-50%) scale(1.2);
-        }
-
-        .modal-nav.prev {
-            left: 30px;
-        }
-
-        .modal-nav.next {
-            right: 30px;
-        }
-
-        /* Minimalist counter */
-        .modal-counter {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 14px;
-            font-weight: 300;
-            letter-spacing: 1px;
-            z-index: 10001;
-            background: none;
-            padding: 8px 16px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 40px;
-        }
-
-        /* Main image container */
-        .modal-image-wrapper {
-            max-width: 90vw;
-            max-height: 90vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-image {
-            max-width: 90vw;
-            max-height: 90vh;
-            width: auto;
-            height: auto;
-            object-fit: contain;
-            opacity: 0;
-            transform: scale(0.98);
-            animation: modalFadeIn 0.2s ease forwards;
-            border-radius: 4px;
-        }
-
-        @keyframes modalFadeIn {
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        /* Loading spinner (minimal) */
-        .modal-loading {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-top-color: rgba(255, 255, 255, 0.5);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .modal-close {
-                top: 20px;
-                right: 20px;
-                font-size: 40px;
-            }
-            
-            .modal-nav {
-                width: 40px;
-                height: 40px;
-                font-size: 30px;
-                display: flex !important; /* Override any display: none */
-                background: rgba(0, 0, 0, 0.3); /* Add slight background for better visibility */
-                border-radius: 50%;
-                backdrop-filter: blur(4px);
-            }
-            
-            .modal-nav.prev {
-                left: 10px;
-            }
-            
-            .modal-nav.next {
-                right: 10px;
-            }
-            
-            .modal-counter {
-                bottom: 20px;
-                font-size: 12px;
-                padding: 6px 12px;
-                background: rgba(0, 0, 0, 0.3);
-                backdrop-filter: blur(4px);
-            }
-        }
-
-        @media (max-width: 480px) {
-            .modal-nav {
-                width: 36px;
-                height: 36px;
-                font-size: 24px;
-            }
-        }
-    </style>
+ 
   </head>
 <body>
 
@@ -216,7 +25,12 @@
                 <li><a href="#contact">Data</a></li>
             </ul>
         </div>
-        <div class="close-btn" id="slideMenuCloseText">▼ CLOSE MENU ▼</div>
+        <div class="menu-footer">
+            <div class="close-text" id="slideMenuCloseText">▼ CLOSE MENU ▼</div>
+            <p class="font-s">Designed and Developed by Jared Yeung with ❤️</p>
+            <p class="font-xs">Version: v0.0.4</p>
+            <p class="font-xs">Copyright © 2026. All Rights reserved.</p>
+        </div>
     </div>
 
   <header class="header-container" id="headerContainer">
@@ -270,7 +84,7 @@
         </div>
         <article class="article-card">
           <div class="card-post">
-            <h4 class="card-post-title">Lorem Ipsum v0.0.2</h4>
+            <h4 class="card-post-title">Lorem Ipsum v0.0.4</h4>
             <p class="card-post-content">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ultrices urna feugiat orci auctor elementum. Phasellus vel justo in erat sodales pulvinar nec sed lorem. Morbi egestas est et accumsan bibendum. Phasellus elit lacus, volutpat at blandit in, tempus quis nibh. Vivamus porta, lacus tincidunt pharetra pellentesque, quam ligula tincidunt mi, a eleifend mi dolor eu turpis. Morbi vitae tellus ullamcorper, interdum lorem eu, ornare purus. Pellentesque turpis purus, tincidunt vitae auctor id, pretium ut sem. Curabitur lacus diam, vestibulum id erat sed, sodales ornare dui.</p>
             
             <div class="card-post-images image-track">
