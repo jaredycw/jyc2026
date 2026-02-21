@@ -310,14 +310,112 @@ const ImageGallery = {
         });
 
         // Close on background click
-        // Close on background click - Fixed
         dom.modal.addEventListener('click', (e) => {
-            // Close if click is on modal background OR on the container (which acts as backdrop)
             if (e.target === dom.modal || e.target.classList.contains('modal-container')) {
-                console.log('Background clicked, closing modal');
                 this.closeModal();
             }
         });
+
+        // ===== NEW: Touch swipe navigation for mobile =====
+        this.initModalSwipe();
+        
+        // ===== NEW: Make arrows visible on mobile =====
+        this.initMobileArrows();
+    },
+
+    initModalSwipe() {
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let touchStartY = 0;
+        let touchEndY = 0;
+        const minSwipeDistance = 50; // Minimum pixels to consider a swipe
+        const maxVerticalDeviation = 30; // Maximum vertical movement allowed for horizontal swipe
+
+        dom.modal.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, { passive: true });
+
+        dom.modal.addEventListener('touchend', (e) => {
+            if (!dom.modal.classList.contains('active')) return;
+            
+            touchEndX = e.changedTouches[0].screenX;
+            touchEndY = e.changedTouches[0].screenY;
+            
+            const horizontalDistance = touchEndX - touchStartX;
+            const verticalDistance = Math.abs(touchEndY - touchStartY);
+            
+            // Only trigger if horizontal swipe and not too much vertical movement
+            if (Math.abs(horizontalDistance) > minSwipeDistance && verticalDistance < maxVerticalDeviation) {
+                if (horizontalDistance > 0) {
+                    // Swipe right → previous image
+                    console.log('Swipe right - previous image');
+                    this.navigateModal(-1);
+                } else {
+                    // Swipe left → next image
+                    console.log('Swipe left - next image');
+                    this.navigateModal(1);
+                }
+            }
+        }, { passive: true });
+
+        // Optional: Add visual feedback during swipe
+        dom.modal.addEventListener('touchmove', (e) => {
+            if (!dom.modal.classList.contains('active')) return;
+            
+            const currentX = e.changedTouches[0].screenX;
+            const diffX = currentX - touchStartX;
+            
+            // Only add visual feedback if swiping horizontally
+            if (Math.abs(diffX) > 10 && Math.abs(diffX) > Math.abs(e.changedTouches[0].screenY - touchStartY)) {
+                // Slightly move the image to show swipe direction
+                const translateX = diffX * 0.3; // Dampen the movement
+                dom.modalImage.style.transform = `translateX(${translateX}px) scale(0.98)`;
+                dom.modalImage.style.transition = 'none';
+            }
+        }, { passive: true });
+
+        // Reset image position
+        dom.modal.addEventListener('touchcancel', () => {
+            dom.modalImage.style.transform = '';
+            dom.modalImage.style.transition = '';
+        });
+
+        dom.modal.addEventListener('touchend', () => {
+            dom.modalImage.style.transform = '';
+            dom.modalImage.style.transition = '';
+        });
+    },
+
+    initMobileArrows() {
+        // Make sure arrows are visible on mobile
+        const checkMobile = () => {
+            const isMobile = window.innerWidth <= 768;
+            
+            if (dom.prevBtn && dom.nextBtn) {
+                if (isMobile) {
+                    // Ensure arrows are visible but maybe smaller
+                    dom.prevBtn.style.display = 'flex';
+                    dom.nextBtn.style.display = 'flex';
+                    
+                    // Optional: Adjust position for mobile
+                    dom.prevBtn.style.width = '40px';
+                    dom.prevBtn.style.height = '40px';
+                    dom.prevBtn.style.fontSize = '30px';
+                    dom.nextBtn.style.width = '40px';
+                    dom.nextBtn.style.height = '40px';
+                    dom.nextBtn.style.fontSize = '30px';
+                } else {
+                    // Reset to default styles
+                    dom.prevBtn.style.display = '';
+                    dom.nextBtn.style.display = '';
+                }
+            }
+        };
+
+        // Check on load and resize
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
     },
 
     navigateModal(direction) {

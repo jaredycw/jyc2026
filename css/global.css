@@ -476,27 +476,27 @@ html[data-theme=dark] .sun-icon {
 }
 @media (min-width: 1400px) {
 	.card-post-image {
-		height: 300px;
+		height: 350px;
 	}
 }
 
 @media (max-width: 1024px) {
 	.card-post-image {
-		height: 260px;
+		height: 300px;
 	}
 }
 
 @media (max-width: 768px) {
 	.card-post-image {
-		height: 220px;
+		height: 250px;
 	}
 }
 
 @media (max-width: 480px) {
 	.card-post-image {
-		height: 160px;
+		height: 200px;
 		/* Smaller on mobile */
-		gap: 30px;
+		gap: 25px;
 	}
 }
 
