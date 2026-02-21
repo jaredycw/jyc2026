@@ -151,8 +151,6 @@ html[data-theme=dark] .sun-icon {
 .logo-text {
 	font-size: 22px;
 	font-weight: 100;
-	letter-spacing: 24px;
-	text-align: center;
 	color: var(--primary-color-2);
 	margin: 0 20px;
 }
@@ -787,7 +785,7 @@ html[data-theme=dark] .sun-icon {
 	}
 	.header-content{
 		border: none;
-		background-color: transparent;
+		background-color: var(--main-bg-color);
 	}
 	.profile-section {
 		margin-top: 120px;
