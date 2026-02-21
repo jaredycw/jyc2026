@@ -1,0 +1,365 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jared Yeung - Personal Blog | Interactive Developer</title>
+  <meta name="description" content="Personal blog of Jared Yeung, turning ideas into interactive realities. Explore thoughts on development, design, and technology innovations.">
+  <meta name="keywords" content="Jared Yeung, personal blog, interactive developer, web development, design, technology">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Jared Yeung - Personal Blog | Interactive Developer">
+  <meta property="og:description" content="Personal blog of Jared Yeung, turning ideas into interactive realities. Explore thoughts on development, design, and technology innovations.">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/theme-toggle.css">
+
+  <style>
+        /* ===== MINIMALIST MODAL ===== */
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.98);
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+        }
+
+        .image-modal.active {
+            display: flex;
+        }
+
+        .modal-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Minimalist close button */
+        .modal-close {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            width: 44px;
+            height: 44px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 44px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s;
+            z-index: 10001;
+            line-height: 1;
+            padding: 0;
+        }
+
+        .modal-close:hover {
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* Minimalist navigation arrows */
+        .modal-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 40px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s;
+            z-index: 10001;
+            line-height: 1;
+            padding: 0;
+        }
+
+        .modal-nav:hover {
+            color: white;
+            transform: translateY(-50%) scale(1.2);
+        }
+
+        .modal-nav.prev {
+            left: 30px;
+        }
+
+        .modal-nav.next {
+            right: 30px;
+        }
+
+        /* Minimalist counter */
+        .modal-counter {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            z-index: 10001;
+            background: none;
+            padding: 8px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 40px;
+        }
+
+        /* Main image container */
+        .modal-image-wrapper {
+            max-width: 90vw;
+            max-height: 90vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-image {
+            max-width: 90vw;
+            max-height: 90vh;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            opacity: 0;
+            transform: scale(0.98);
+            animation: modalFadeIn 0.2s ease forwards;
+            border-radius: 4px;
+        }
+
+        @keyframes modalFadeIn {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Loading spinner (minimal) */
+        .modal-loading {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-top-color: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .modal-close {
+                top: 20px;
+                right: 20px;
+                font-size: 40px;
+            }
+            
+            .modal-nav {
+                width: 40px;
+                height: 40px;
+                font-size: 30px;
+            }
+            
+            .modal-nav.prev {
+                left: 15px;
+            }
+            
+            .modal-nav.next {
+                right: 15px;
+            }
+            
+            .modal-counter {
+                bottom: 20px;
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .modal-nav {
+                display: none; /* Hide arrows on very small screens */
+            }
+        }
+    </style>
+  </head>
+<body>
+
+  <div class="slide-menu" id="slideMenu">
+        <div class="menu-content">
+            <ul class="menu-items">
+                <li><a href="#about">About</a></li>
+                <li><a href="#services">Blog</a></li>
+                <li><a href="#portfolio">Craft</a></li>
+                <li><a href="#contact">Data</a></li>
+            </ul>
+        </div>
+        <div class="close-btn" onclick="closeMenu()">▼ CLOSE MENU ▼</div>
+    </div>
+
+  <header class="header-container" id="headerContainer">
+      <div class="header-content">
+        <div class="header-left">
+          <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                        <svg class="sun-icon" viewBox="0 0 24 24" width="20" height="20">
+                            <circle cx="12" cy="12" r="5"/>
+                            <line x1="12" y1="1" x2="12" y2="3"/>
+                            <line x1="12" y1="21" x2="12" y2="23"/>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                            <line x1="1" y1="12" x2="3" y2="12"/>
+                            <line x1="21" y1="12" x2="23" y2="12"/>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                        </svg>
+                        <svg class="moon-icon" viewBox="0 0 24 24" width="20" height="20">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                        </svg>
+            </button>
+        </div>
+        
+        <h1 class="logo-text">JYC</h1>
+        
+        <div class="header-right">
+          <nav class="navbar">
+              <button class="hamburger" id="hamburger">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+              </button>
+          </nav>   
+        </div>
+      </div>
+  </header>
+  <main class="main-container">
+    <section class="profile-section">
+      <div class="profile-content">
+        <h2 class="profile-name">Jared Yeung</h2>
+        <p class="profile-tagline">Turning ideas into interactive realities.</p>
+        <p class="profile-email">jaredycw@gmail.com</p>
+      </div>
+      <div class="profile-image"></div>
+    </section>
+    
+    <section class="card-section">
+      <div class="card-container">
+        <div class="card-header">
+            <h3 class="card-title">BLOG.</h3>
+        </div>
+        <article class="article-card">
+          <div class="card-post">
+            <h4 class="card-post-title">Lorem Ipsum</h4>
+            <p class="card-post-content">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ultrices urna feugiat orci auctor elementum. Phasellus vel justo in erat sodales pulvinar nec sed lorem. Morbi egestas est et accumsan bibendum. Phasellus elit lacus, volutpat at blandit in, tempus quis nibh. Vivamus porta, lacus tincidunt pharetra pellentesque, quam ligula tincidunt mi, a eleifend mi dolor eu turpis. Morbi vitae tellus ullamcorper, interdum lorem eu, ornare purus. Pellentesque turpis purus, tincidunt vitae auctor id, pretium ut sem. Curabitur lacus diam, vestibulum id erat sed, sodales ornare dui.</p>
+            
+            <div class="card-post-images image-track">
+                <img src="asset/1.jpg" alt="Blog post image 1" class="card-post-image" data-index="0">
+                <img src="asset/2.jpg" alt="Blog post image 2" class="card-post-image" data-index="1">
+                <img src="asset/3.jpg" alt="Blog post image 3" class="card-post-image" data-index="2">
+                <img src="asset/4.jpg" alt="Blog post image 4" class="card-post-image" data-index="3">
+                <img src="asset/5.jpg" alt="Blog post image 5" class="card-post-image" data-index="4">
+                <img src="asset/6.jpg" alt="Blog post image 6" class="card-post-image" data-index="5">
+                <img src="asset/7.jpg" alt="Blog post image 7" class="card-post-image" data-index="6">
+            </div>
+          </div>
+        </article>
+        <article class="article-card">
+          <div class="card-post">
+            <h4 class="card-post-title">Lorem Ipsum</h4>
+            <p class="card-post-content">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ultrices urna feugiat orci auctor elementum. Phasellus vel justo in erat sodales pulvinar nec sed lorem. Morbi egestas est et accumsan bibendum. Phasellus elit lacus, volutpat at blandit in, tempus quis nibh. Vivamus porta, lacus tincidunt pharetra pellentesque, quam ligula tincidunt mi, a eleifend mi dolor eu turpis. Morbi vitae tellus ullamcorper, interdum lorem eu, ornare purus. Pellentesque turpis purus, tincidunt vitae auctor id, pretium ut sem. Curabitur lacus diam, vestibulum id erat sed, sodales ornare dui.</p>
+            
+            <div class="card-post-images image-track">
+              <img src="asset/1.jpg" alt="Blog post image 1" class="card-post-image" onload="checkOrientation(this)">
+              <img src="asset/2.jpg" alt="Blog post image 2" class="card-post-image">
+            </div>
+          </div>
+        </article>
+        
+        <article class="article-card">
+          <div class="card-post">
+            <h4 class="card-post-title">Lorem Ipsum</h4>
+            <p class="card-post-content">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ultrices urna feugiat orci auctor elementum. Phasellus vel justo in erat sodales pulvinar nec sed lorem. Morbi egestas est et accumsan bibendum. Phasellus elit lacus, volutpat at blandit in, tempus quis nibh. Vivamus porta, lacus tincidunt pharetra pellentesque, quam ligula tincidunt mi, a eleifend mi dolor eu turpis. Morbi vitae tellus ullamcorper, interdum lorem eu, ornare purus. Pellentesque turpis purus, tincidunt vitae auctor id, pretium ut sem. Curabitur lacus diam, vestibulum id erat sed, sodales ornare dui.</p>
+            <div class="card-post-single-image image-track">
+            <img src="asset/1.jpg" alt="Featured blog post image" class="card-post-image" onload="checkOrientation(this)">
+            </div>
+          </div>
+        </article>
+
+        <article class="article-card">
+          <div class="card-post">
+            <h4 class="card-post-title">Lorem Ipsum</h4>
+            <p class="card-post-content">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ultrices urna feugiat orci auctor elementum. Phasellus vel justo in erat sodales pulvinar nec sed lorem. Morbi egestas est et accumsan bibendum. Phasellus elit lacus, volutpat at blandit in, tempus quis nibh. Vivamus porta, lacus tincidunt pharetra pellentesque, quam ligula tincidunt mi, a eleifend mi dolor eu turpis. Morbi vitae tellus ullamcorper, interdum lorem eu, ornare purus. Pellentesque turpis purus, tincidunt vitae auctor id, pretium ut sem. Curabitur lacus diam, vestibulum id erat sed, sodales ornare dui.</p>
+            <div class="card-post-single-image image-track">
+            <img src="asset/2.jpg" alt="Featured blog post image" class="card-post-image" onload="checkOrientation(this)">
+            </div>
+          </div>
+        </article>
+        
+        
+      </div>
+    </section>
+
+   
+  </main>
+  <!-- Single Modal (reused for all tracks) -->
+    <div class="image-modal" id="imageModal">
+        <div class="modal-container">
+            <button class="modal-close" id="closeModal">×</button>
+            <button class="modal-nav prev" id="prevModal">←</button>
+            <button class="modal-nav next" id="nextModal">→</button>
+            
+            <div class="modal-image-wrapper">
+                <div class="modal-loading" id="modalLoading"></div>
+                <img src="" alt="" class="modal-image" id="modalImage">
+            </div>
+            
+            <div class="modal-counter" id="modalCounter">1 / 1</div>
+        </div>
+    </div>
+<script>
+// Function to check image orientation and adjust styling
+function checkOrientation(img) {
+    // Wait for image to load
+    if (img.complete) {
+        setImageDimensions(img);
+    } else {
+        img.onload = function() {
+            setImageDimensions(img);
+        };
+    }
+}
+
+function setImageDimensions(img) {
+    // Get natural dimensions
+    const width = img.naturalWidth;
+    const height = img.naturalHeight;
+
+    // Add data attribute for orientation
+    if (width > height) {
+        img.setAttribute('data-orientation', 'landscape');
+    } else if (height > width) {
+        img.setAttribute('data-orientation', 'portrait');
+    } else {
+        img.setAttribute('data-orientation', 'square');
+    }
+}
+</script>
+<script src="js/global.js" defer></script>
+ 
+
+</body>
+</html>
