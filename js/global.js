@@ -469,3 +469,234 @@ const ImageGallery = {
 document.addEventListener('DOMContentLoaded', () => {
     ImageGallery.init();
 }, { once: true });
+
+// ===== 4. INFINITE SCROLL =====
+const InfiniteScroll = {
+    config: {
+        page: 1,
+        perPage: 5, // Number of posts to load each time
+        loading: false,
+        hasMore: true,
+        threshold: 200, // Pixels from bottom to trigger load
+        postsLoaded: 0
+    },
+
+    elements: {
+        container: document.querySelector('.card-container'),
+        loadingIndicator: document.getElementById('loadingIndicator'),
+        endMessage: document.getElementById('endMessage')
+    },
+
+    // Sample blog post data (replace with your actual data source)
+    blogPosts: [
+        {
+            title: "Getting Started with Interactive Development",
+            content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ultrices urna feugiat orci auctor elementum. Phasellus vel justo in erat sodales pulvinar nec sed lorem. Morbi egestas est et accumsan bibendum. Phasellus elit lacus, volutpat at blandit in, tempus quis nibh. Vivamus porta, lacus tincidunt pharetra pellentesque, quam ligula tincidunt mi, a eleifend mi dolor eu turpis.",
+            images: [
+                { src: "asset/1.jpg", alt: "Blog post image 1" },
+                { src: "asset/2.jpg", alt: "Blog post image 2" },
+                { src: "asset/3.jpg", alt: "Blog post image 3" }
+            ],
+            singleImage: false
+        },
+        {
+            title: "The Future of Web Animation",
+            content: "Morbi vitae tellus ullamcorper, interdum lorem eu, ornare purus. Pellentesque turpis purus, tincidunt vitae auctor id, pretium ut sem. Curabitur lacus diam, vestibulum id erat sed, sodales ornare dui. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            images: [
+                { src: "asset/4.jpg", alt: "Featured image" }
+            ],
+            singleImage: true
+        },
+        {
+            title: "Design Systems in 2024",
+            content: "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+            images: [
+                { src: "asset/5.jpg", alt: "Design system example" },
+                { src: "asset/6.jpg", alt: "Design system component" }
+            ],
+            singleImage: false
+        },
+        {
+            title: "Responsive Design Best Practices",
+            content: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.",
+            images: [
+                { src: "asset/7.jpg", alt: "Responsive design example" }
+            ],
+            singleImage: true
+        },
+        {
+            title: "JavaScript Performance Tips",
+            content: "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.",
+            images: [
+                { src: "asset/1.jpg", alt: "Performance optimization" },
+                { src: "asset/2.jpg", alt: "Code example" },
+                { src: "asset/3.jpg", alt: "Benchmark results" }
+            ],
+            singleImage: false
+        }
+        // Add more posts as needed
+    ],
+
+    init() {
+        // Store initial post count
+        this.config.postsLoaded = document.querySelectorAll('.article-card').length;
+        
+        // Check if we have more posts to load
+        this.config.hasMore = this.config.postsLoaded < this.blogPosts.length;
+        
+        // Add scroll listener with throttling
+        this.setupScrollListener();
+        
+        // Initial check in case content doesn't fill the page
+        setTimeout(() => this.checkScroll(), 500);
+    },
+
+    setupScrollListener() {
+        let ticking = false;
+        
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    this.checkScroll();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+
+        // Also check on resize
+        window.addEventListener('resize', () => {
+            this.checkScroll();
+        });
+    },
+
+    checkScroll() {
+        if (this.config.loading || !this.config.hasMore) return;
+
+        const scrollPosition = window.innerHeight + window.scrollY;
+        const threshold = document.documentElement.scrollHeight - this.config.threshold;
+
+        if (scrollPosition >= threshold) {
+            this.loadMorePosts();
+        }
+    },
+
+    async loadMorePosts() {
+        if (this.config.loading || !this.config.hasMore) return;
+
+        this.config.loading = true;
+        this.showLoading();
+
+        // Simulate network delay (remove in production)
+        await new Promise(resolve => setTimeout(resolve, 800));
+
+        // Load next batch of posts
+        const startIndex = this.config.postsLoaded;
+        const endIndex = Math.min(startIndex + this.config.perPage, this.blogPosts.length);
+        
+        if (startIndex >= this.blogPosts.length) {
+            this.config.hasMore = false;
+            this.hideLoading();
+            this.showEndMessage();
+            return;
+        }
+
+        // Create and insert new posts
+        for (let i = startIndex; i < endIndex; i++) {
+            const post = this.blogPosts[i];
+            const postElement = this.createPostElement(post);
+            
+            // Insert before loading indicator
+            this.elements.container.insertBefore(
+                postElement, 
+                this.elements.loadingIndicator
+            );
+        }
+
+        // Update counters
+        this.config.postsLoaded = endIndex;
+        this.config.hasMore = endIndex < this.blogPosts.length;
+
+        // Re-initialize image gallery for new posts
+        if (typeof ImageGallery !== 'undefined') {
+            // Refresh image tracks
+            ImageGallery.elements.imageTracks = document.querySelectorAll('.image-track');
+            ImageGallery.elements.cardImages = document.querySelectorAll('.card-post-image');
+            ImageGallery.initImageTracks();
+            ImageGallery.initImageProtection();
+        }
+
+        this.hideLoading();
+
+        if (!this.config.hasMore) {
+            this.showEndMessage();
+        }
+    },
+
+    createPostElement(post) {
+        const article = document.createElement('article');
+        article.className = 'article-card';
+        
+        const imageClass = post.singleImage ? 'card-post-single-image' : 'card-post-images';
+        const imageTrackClass = post.singleImage ? 'image-track single' : 'image-track';
+        
+        // Create images HTML
+        const imagesHtml = post.images.map((img, idx) => 
+            `<img src="${img.src}" alt="${img.alt}" class="card-post-image" data-index="${idx}">`
+        ).join('');
+
+        article.innerHTML = `
+            <div class="card-post">
+                <h4 class="card-post-title">${post.title}</h4>
+                <p class="card-post-content">${post.content}</p>
+                
+                <div class="${imageClass} ${imageTrackClass}">
+                    ${imagesHtml}
+                </div>
+            </div>
+        `;
+
+        return article;
+    },
+
+    showLoading() {
+        if (this.elements.loadingIndicator) {
+            this.elements.loadingIndicator.classList.add('active');
+        }
+    },
+
+    hideLoading() {
+        if (this.elements.loadingIndicator) {
+            this.elements.loadingIndicator.classList.remove('active');
+        }
+    },
+
+    showEndMessage() {
+        if (this.elements.endMessage) {
+            this.elements.endMessage.style.display = 'block';
+        }
+    },
+
+    // Manual refresh method (useful for filtering/search)
+    reset() {
+        this.config.page = 1;
+        this.config.loading = false;
+        this.config.hasMore = true;
+        this.config.postsLoaded = document.querySelectorAll('.article-card').length;
+        
+        // Hide end message
+        if (this.elements.endMessage) {
+            this.elements.endMessage.style.display = 'none';
+        }
+    }
+};
+
+// Initialize infinite scroll
+document.addEventListener('DOMContentLoaded', () => {
+    // Your existing ImageGallery.init() is already called
+    
+    // Initialize infinite scroll
+    setTimeout(() => {
+        InfiniteScroll.init();
+    }, 100); // Small delay to ensure DOM is ready
+});
