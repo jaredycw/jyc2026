@@ -1,6 +1,6 @@
-// ===== main.js - Combined and optimized =====
+// ===== main.js - Optimized for Performance =====
 
-// ===== CORE UTILITIES =====
+// ===== CORE UTILITIES with null checks =====
 const dom = {
     themeToggle: document.getElementById('themeToggle'),
     html: document.documentElement,
@@ -17,63 +17,73 @@ const dom = {
     counter: document.getElementById('modalCounter')
 };
 
-// ===== 1. THEME TOGGLE =====
+// Filter out null elements to avoid repeated checks
+const validDom = Object.fromEntries(
+    Object.entries(dom).filter(([_, value]) => value !== null)
+);
+
+// ===== 1. THEME TOGGLE (Optimized) =====
 (function initTheme() {
     const savedTheme = localStorage.getItem('theme') || 'light';
     dom.html.setAttribute('data-theme', savedTheme);
 
     if (dom.themeToggle) {
         dom.themeToggle.addEventListener('click', () => {
-            const currentTheme = dom.html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            const newTheme = dom.html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
             dom.html.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
         });
     }
 })();
 
-// ===== 2. SLIDE MENU =====
+// ===== 2. SLIDE MENU (Optimized) =====
 (function initSlideMenu() {
     if (!dom.hamburger || !dom.slideMenu) return;
 
-    function toggleMenu() {
+    const toggleMenu = () => {
+        const isActive = dom.slideMenu.classList.contains('active');
         dom.hamburger.classList.toggle('active');
         dom.slideMenu.classList.toggle('active');
         dom.headerContainer?.classList.toggle('active');
-        document.body.style.overflow = dom.slideMenu.classList.contains('active') ? 'hidden' : 'auto';
-    }
+        document.body.style.overflow = isActive ? 'auto' : 'hidden';
+    };
 
-    function closeMenu() {
+    const closeMenu = () => {
         dom.hamburger.classList.remove('active');
         dom.slideMenu.classList.remove('active');
         dom.headerContainer?.classList.remove('active');
         document.body.style.overflow = 'auto';
-    }
+    };
 
-    // Event listeners
-    dom.hamburger.addEventListener('click', toggleMenu);
+    // Cache menu items query
+    const menuItems = document.querySelectorAll('.menu-items a');
     
-    document.querySelectorAll('.menu-items a').forEach(link => {
-        link.addEventListener('click', closeMenu);
-    });
-
+    // Event listeners with passive where possible
+    dom.hamburger.addEventListener('click', toggleMenu);
+    menuItems.forEach(link => link.addEventListener('click', closeMenu));
+    
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && dom.slideMenu.classList.contains('active')) {
             closeMenu();
         }
     });
 
-    dom.slideMenuCloseText.addEventListener('click', closeMenu);
+    if (dom.slideMenuCloseText) {
+        dom.slideMenuCloseText.addEventListener('click', closeMenu);
+    }
 
     dom.slideMenu.addEventListener('click', (e) => {
         if (e.target === dom.slideMenu) closeMenu();
     });
 })();
 
-// ===== 3. IMAGE SLIDER & MODAL (Modularized) =====
+// ===== 3. IMAGE GALLERY (Modularized & Optimized) =====
 const ImageGallery = {
     config: {
         dragThreshold: 5,
+        swipeThreshold: 50,
+        maxVerticalDeviation: 30,
+        tapTimeThreshold: 200,
         modalState: {
             currentTrack: null,
             currentImages: [],
@@ -81,168 +91,168 @@ const ImageGallery = {
         }
     },
 
+    // Cache frequently used elements
+    elements: {
+        imageTracks: null,
+        cardImages: null
+    },
+
     init() {
+        // Cache DOM queries
+        this.elements.imageTracks = document.querySelectorAll('.image-track');
+        this.elements.cardImages = document.querySelectorAll('.card-post-image');
+        
         this.initImageTracks();
         this.initModal();
         this.initImageProtection();
     },
 
     initImageTracks() {
-        document.querySelectorAll('.image-track').forEach(track => {
+        this.elements.imageTracks.forEach(track => {
             this.setupTrackEvents(track);
         });
     },
 
     setupTrackEvents(track) {
-    let isDragging = false;
-    let startX, scrollLeft, startTime, startY;
-    let dragDistance = 0;
-    let isHorizontalScroll = false;
-    let initialScrollLeft = 0;
+        let isDragging = false;
+        let startX, scrollLeft, startTime, startY;
+        let dragDistance = 0;
+        let isHorizontalScroll = false;
+        let initialScrollLeft = 0;
 
-    // Mouse events (keep as is)
-    track.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        track.classList.add('dragging');
-        startX = e.pageX - track.offsetLeft;
-        scrollLeft = track.scrollLeft;
-        startTime = Date.now();
-        dragDistance = 0;
-        e.preventDefault();
-    });
-
-    track.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-        e.preventDefault();
-        
-        const x = e.pageX - track.offsetLeft;
-        const walk = x - startX;
-        dragDistance = Math.abs(walk);
-        
-        if (dragDistance > this.config.dragThreshold) {
-            track.scrollLeft = scrollLeft - walk;
-        }
-    });
-
-    track.addEventListener('mouseup', (e) => {
-        if (!isDragging) return;
-        
-        track.classList.remove('dragging');
-        
-        const wasClick = dragDistance <= this.config.dragThreshold && 
-                        (Date.now() - startTime) < 200;
-        
-        if (wasClick) {
-            this.handleImageClick(e, track);
-        }
-        
-        isDragging = false;
-    });
-
-    track.addEventListener('mouseleave', () => {
-        isDragging = false;
-        track.classList.remove('dragging');
-    });
-
-    // ===== FIXED TOUCH EVENTS FOR MOBILE =====
-    track.addEventListener('touchstart', (e) => {
-        isDragging = true;
-        track.classList.add('dragging');
-        startX = e.touches[0].pageX;
-        startY = e.touches[0].pageY;
-        scrollLeft = track.scrollLeft;
-        initialScrollLeft = track.scrollLeft;
-        startTime = Date.now();
-        dragDistance = 0;
-        isHorizontalScroll = false;
-        
-        // Don't prevent default on touchstart - let the browser decide
-    });
-
-    track.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        
-        const currentX = e.touches[0].pageX;
-        const currentY = e.touches[0].pageY;
-        const diffX = currentX - startX;
-        const diffY = currentY - startY;
-        const absDiffX = Math.abs(diffX);
-        const absDiffY = Math.abs(diffY);
-        
-        // Determine scroll direction
-        if (!isHorizontalScroll) {
-            // If horizontal movement is greater AND track can scroll horizontally
-            if (absDiffX > absDiffY && absDiffX > 5) {
-                isHorizontalScroll = true;
-                // Prevent default ONLY when we're sure it's horizontal scroll
-                e.preventDefault();
-            }
-            // If vertical movement is greater, let the browser handle it
-            else if (absDiffY > absDiffX && absDiffY > 5) {
-                // This is a vertical scroll - clean up dragging state
-                isDragging = false;
-                track.classList.remove('dragging');
-                return; // Exit without preventing default
-            }
-        }
-        
-        // Handle horizontal scrolling
-        if (isHorizontalScroll) {
-            e.preventDefault(); // Prevent page scroll while horizontally dragging
+        // Shared handler for determining scroll direction
+        const getScrollDirection = (currentX, currentY) => {
+            const diffX = currentX - startX;
+            const diffY = currentY - startY;
+            const absDiffX = Math.abs(diffX);
+            const absDiffY = Math.abs(diffY);
             
-            // Calculate new scroll position
-            const walk = diffX;
-            dragDistance = absDiffX;
-            
-            // Apply horizontal scroll
-            track.scrollLeft = scrollLeft - walk;
-            
-            // Update visual feedback
-            if (absDiffX > this.config.dragThreshold) {
-                // We're definitely scrolling, not tapping
-            }
-        }
-    });
+            return {
+                diffX,
+                diffY,
+                absDiffX,
+                absDiffY,
+                isHorizontal: absDiffX > absDiffY && absDiffX > 5,
+                isVertical: absDiffY > absDiffX && absDiffY > 5
+            };
+        };
 
-    track.addEventListener('touchend', (e) => {
-        if (!isDragging) {
-            // Clean up if we already determined it was vertical scroll
+        // Mouse events (keep as is)
+        track.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            track.classList.add('dragging');
+            startX = e.pageX - track.offsetLeft;
+            scrollLeft = track.scrollLeft;
+            startTime = Date.now();
+            dragDistance = 0;
+            e.preventDefault();
+        });
+
+        track.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            
+            const x = e.pageX - track.offsetLeft;
+            const walk = x - startX;
+            dragDistance = Math.abs(walk);
+            
+            if (dragDistance > this.config.dragThreshold) {
+                track.scrollLeft = scrollLeft - walk;
+            }
+        });
+
+        track.addEventListener('mouseup', (e) => {
+            if (!isDragging) return;
+            
             track.classList.remove('dragging');
-            return;
-        }
-        
-        track.classList.remove('dragging');
-        
-        // Calculate if this was a tap (for opening modal)
-        const touchEndTime = Date.now();
-        const timeDiff = touchEndTime - startTime;
-        const wasTap = dragDistance <= this.config.dragThreshold && timeDiff < 200;
-        const didScroll = Math.abs(track.scrollLeft - initialScrollLeft) > 10;
-        
-        // Only open modal if it was a tap AND we didn't scroll
-        if (wasTap && !didScroll && e.changedTouches.length > 0) {
-            this.handleTouchTap(e, track);
-        }
-        
-        isDragging = false;
-        isHorizontalScroll = false;
-    });
+            
+            const wasClick = dragDistance <= this.config.dragThreshold && 
+                            (Date.now() - startTime) < this.config.tapTimeThreshold;
+            
+            if (wasClick) {
+                this.handleImageClick(e, track);
+            }
+            
+            isDragging = false;
+        });
 
-    // Cancel touch events if they get interrupted
-    track.addEventListener('touchcancel', () => {
-        isDragging = false;
-        isHorizontalScroll = false;
-        track.classList.remove('dragging');
-    });
-},
+        track.addEventListener('mouseleave', () => {
+            isDragging = false;
+            track.classList.remove('dragging');
+        });
+
+        // ===== OPTIMIZED TOUCH EVENTS =====
+        track.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            isDragging = true;
+            track.classList.add('dragging');
+            startX = touch.pageX;
+            startY = touch.pageY;
+            scrollLeft = track.scrollLeft;
+            initialScrollLeft = track.scrollLeft;
+            startTime = Date.now();
+            dragDistance = 0;
+            isHorizontalScroll = false;
+        }, { passive: true });
+
+        track.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            
+            const touch = e.touches[0];
+            const direction = getScrollDirection(touch.pageX, touch.pageY);
+            
+            // Determine scroll direction (only once)
+            if (!isHorizontalScroll) {
+                if (direction.isHorizontal) {
+                    isHorizontalScroll = true;
+                    e.preventDefault();
+                } else if (direction.isVertical) {
+                    isDragging = false;
+                    track.classList.remove('dragging');
+                    return;
+                }
+            }
+            
+            // Handle horizontal scrolling
+            if (isHorizontalScroll) {
+                e.preventDefault();
+                const walk = direction.diffX;
+                dragDistance = direction.absDiffX;
+                track.scrollLeft = scrollLeft - walk;
+            }
+        }, { passive: false });
+
+        track.addEventListener('touchend', (e) => {
+            if (!isDragging) {
+                track.classList.remove('dragging');
+                return;
+            }
+            
+            track.classList.remove('dragging');
+            
+            const wasTap = dragDistance <= this.config.dragThreshold && 
+                          (Date.now() - startTime) < this.config.tapTimeThreshold;
+            const didScroll = Math.abs(track.scrollLeft - initialScrollLeft) > 10;
+            
+            if (wasTap && !didScroll && e.changedTouches.length > 0) {
+                this.handleTouchTap(e, track);
+            }
+            
+            isDragging = false;
+            isHorizontalScroll = false;
+        });
+
+        track.addEventListener('touchcancel', () => {
+            isDragging = false;
+            isHorizontalScroll = false;
+            track.classList.remove('dragging');
+        });
+    },
 
     handleImageClick(e, track) {
         const images = Array.from(track.querySelectorAll('.card-post-image'));
-        const clickedIndex = images.findIndex(img => {
-            const rect = img.getBoundingClientRect();
-            return e.clientX >= rect.left && e.clientX <= rect.right;
-        });
-
+        const clickedIndex = this.findImageIndexAtPosition(images, e.clientX, null);
+        
         if (clickedIndex !== -1) {
             this.openModal(track, images, clickedIndex);
         }
@@ -251,20 +261,30 @@ const ImageGallery = {
     handleTouchTap(e, track) {
         const touch = e.changedTouches[0];
         const images = Array.from(track.querySelectorAll('.card-post-image'));
-        const tappedIndex = images.findIndex(img => {
-            const rect = img.getBoundingClientRect();
-            return touch.clientX >= rect.left && touch.clientX <= rect.right;
-        });
-
+        const tappedIndex = this.findImageIndexAtPosition(images, touch.clientX, touch.clientY);
+        
         if (tappedIndex !== -1) {
             this.openModal(track, images, tappedIndex);
         }
     },
 
+    findImageIndexAtPosition(images, x, y = null) {
+        return images.findIndex(img => {
+            const rect = img.getBoundingClientRect();
+            if (y === null) {
+                return x >= rect.left && x <= rect.right;
+            }
+            return x >= rect.left && x <= rect.right && 
+                   y >= rect.top && y <= rect.bottom;
+        });
+    },
+
     openModal(track, images, index) {
-        this.config.modalState.currentTrack = track;
-        this.config.modalState.currentImages = images;
-        this.config.modalState.currentIndex = index;
+        Object.assign(this.config.modalState, {
+            currentTrack: track,
+            currentImages: images,
+            currentIndex: index
+        });
         
         this.loadModalImage(images[index].src);
         this.updateModalCounter();
@@ -304,9 +324,15 @@ const ImageGallery = {
         document.addEventListener('keydown', (e) => {
             if (!dom.modal.classList.contains('active')) return;
             
-            if (e.key === 'Escape') this.closeModal();
-            else if (e.key === 'ArrowLeft') this.navigateModal(-1);
-            else if (e.key === 'ArrowRight') this.navigateModal(1);
+            const keyActions = {
+                'Escape': () => this.closeModal(),
+                'ArrowLeft': () => this.navigateModal(-1),
+                'ArrowRight': () => this.navigateModal(1)
+            };
+            
+            if (keyActions[e.key]) {
+                keyActions[e.key]();
+            }
         });
 
         // Close on background click
@@ -316,106 +342,89 @@ const ImageGallery = {
             }
         });
 
-        // ===== NEW: Touch swipe navigation for mobile =====
         this.initModalSwipe();
-        
-        // ===== NEW: Make arrows visible on mobile =====
         this.initMobileArrows();
     },
 
     initModalSwipe() {
         let touchStartX = 0;
-        let touchEndX = 0;
         let touchStartY = 0;
-        let touchEndY = 0;
-        const minSwipeDistance = 50; // Minimum pixels to consider a swipe
-        const maxVerticalDeviation = 30; // Maximum vertical movement allowed for horizontal swipe
-
-        dom.modal.addEventListener('touchstart', (e) => {
+        
+        const handleTouchStart = (e) => {
             touchStartX = e.changedTouches[0].screenX;
             touchStartY = e.changedTouches[0].screenY;
-        }, { passive: true });
+        };
 
-        dom.modal.addEventListener('touchend', (e) => {
-            if (!dom.modal.classList.contains('active')) return;
-            
-            touchEndX = e.changedTouches[0].screenX;
-            touchEndY = e.changedTouches[0].screenY;
-            
-            const horizontalDistance = touchEndX - touchStartX;
-            const verticalDistance = Math.abs(touchEndY - touchStartY);
-            
-            // Only trigger if horizontal swipe and not too much vertical movement
-            if (Math.abs(horizontalDistance) > minSwipeDistance && verticalDistance < maxVerticalDeviation) {
-                if (horizontalDistance > 0) {
-                    // Swipe right → previous image
-                    console.log('Swipe right - previous image');
-                    this.navigateModal(-1);
-                } else {
-                    // Swipe left → next image
-                    console.log('Swipe left - next image');
-                    this.navigateModal(1);
-                }
-            }
-        }, { passive: true });
-
-        // Optional: Add visual feedback during swipe
-        dom.modal.addEventListener('touchmove', (e) => {
+        const handleTouchMove = (e) => {
             if (!dom.modal.classList.contains('active')) return;
             
             const currentX = e.changedTouches[0].screenX;
             const diffX = currentX - touchStartX;
+            const diffY = Math.abs(e.changedTouches[0].screenY - touchStartY);
             
-            // Only add visual feedback if swiping horizontally
-            if (Math.abs(diffX) > 10 && Math.abs(diffX) > Math.abs(e.changedTouches[0].screenY - touchStartY)) {
-                // Slightly move the image to show swipe direction
-                const translateX = diffX * 0.3; // Dampen the movement
-                dom.modalImage.style.transform = `translateX(${translateX}px) scale(0.98)`;
+            if (Math.abs(diffX) > 10 && Math.abs(diffX) > diffY) {
+                dom.modalImage.style.transform = `translateX(${diffX * 0.3}px) scale(0.98)`;
                 dom.modalImage.style.transition = 'none';
             }
-        }, { passive: true });
+        };
 
-        // Reset image position
-        dom.modal.addEventListener('touchcancel', () => {
+        const handleTouchEnd = (e) => {
+            if (!dom.modal.classList.contains('active')) return;
+            
+            const touchEndX = e.changedTouches[0].screenX;
+            const touchEndY = e.changedTouches[0].screenY;
+            
+            const horizontalDistance = touchEndX - touchStartX;
+            const verticalDistance = Math.abs(touchEndY - touchStartY);
+            
+            if (Math.abs(horizontalDistance) > this.config.swipeThreshold && 
+                verticalDistance < this.config.maxVerticalDeviation) {
+                this.navigateModal(horizontalDistance > 0 ? -1 : 1);
+            }
+            
+            // Reset image position
             dom.modalImage.style.transform = '';
             dom.modalImage.style.transition = '';
-        });
+        };
 
-        dom.modal.addEventListener('touchend', () => {
+        dom.modal.addEventListener('touchstart', handleTouchStart, { passive: true });
+        dom.modal.addEventListener('touchmove', handleTouchMove.bind(this), { passive: true });
+        dom.modal.addEventListener('touchend', handleTouchEnd.bind(this));
+        dom.modal.addEventListener('touchcancel', () => {
             dom.modalImage.style.transform = '';
             dom.modalImage.style.transition = '';
         });
     },
 
     initMobileArrows() {
-        // Make sure arrows are visible on mobile
-        const checkMobile = () => {
+        if (!dom.prevBtn || !dom.nextBtn) return;
+        
+        const updateArrows = () => {
             const isMobile = window.innerWidth <= 768;
+            const style = isMobile ? {
+                display: 'flex',
+                width: '40px',
+                height: '40px',
+                fontSize: '30px'
+            } : {
+                display: '',
+                width: '',
+                height: '',
+                fontSize: ''
+            };
             
-            if (dom.prevBtn && dom.nextBtn) {
-                if (isMobile) {
-                    // Ensure arrows are visible but maybe smaller
-                    dom.prevBtn.style.display = 'flex';
-                    dom.nextBtn.style.display = 'flex';
-                    
-                    // Optional: Adjust position for mobile
-                    dom.prevBtn.style.width = '40px';
-                    dom.prevBtn.style.height = '40px';
-                    dom.prevBtn.style.fontSize = '30px';
-                    dom.nextBtn.style.width = '40px';
-                    dom.nextBtn.style.height = '40px';
-                    dom.nextBtn.style.fontSize = '30px';
-                } else {
-                    // Reset to default styles
-                    dom.prevBtn.style.display = '';
-                    dom.nextBtn.style.display = '';
-                }
-            }
+            Object.assign(dom.prevBtn.style, style);
+            Object.assign(dom.nextBtn.style, style);
         };
 
-        // Check on load and resize
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
+        // Debounce resize events for performance
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(updateArrows, 100);
+        });
+        
+        updateArrows();
     },
 
     navigateModal(direction) {
@@ -437,27 +446,26 @@ const ImageGallery = {
     },
 
     initImageProtection() {
-        document.querySelectorAll('.card-post-image').forEach(img => {
+        this.elements.cardImages.forEach(img => {
             img.addEventListener('dragstart', (e) => e.preventDefault());
             
-            // Orientation detection
+            // Orientation detection (optimized)
             if (img.complete) {
                 this.setImageOrientation(img);
             } else {
-                img.addEventListener('load', () => this.setImageOrientation(img));
+                img.addEventListener('load', () => this.setImageOrientation(img), { once: true });
             }
         });
     },
 
     setImageOrientation(img) {
         const { width, height } = img;
-        if (width > height) img.setAttribute('data-orientation', 'landscape');
-        else if (height > width) img.setAttribute('data-orientation', 'portrait');
-        else img.setAttribute('data-orientation', 'square');
+        const orientation = width > height ? 'landscape' : height > width ? 'portrait' : 'square';
+        img.setAttribute('data-orientation', orientation);
     }
 };
 
 // Initialize everything when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     ImageGallery.init();
-});
+}, { once: true });

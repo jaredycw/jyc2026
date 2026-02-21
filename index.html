@@ -173,26 +173,34 @@
                 width: 40px;
                 height: 40px;
                 font-size: 30px;
+                display: flex !important; /* Override any display: none */
+                background: rgba(0, 0, 0, 0.3); /* Add slight background for better visibility */
+                border-radius: 50%;
+                backdrop-filter: blur(4px);
             }
             
             .modal-nav.prev {
-                left: 15px;
+                left: 10px;
             }
             
             .modal-nav.next {
-                right: 15px;
+                right: 10px;
             }
             
             .modal-counter {
                 bottom: 20px;
                 font-size: 12px;
                 padding: 6px 12px;
+                background: rgba(0, 0, 0, 0.3);
+                backdrop-filter: blur(4px);
             }
         }
 
         @media (max-width: 480px) {
             .modal-nav {
-                display: none; /* Hide arrows on very small screens */
+                width: 36px;
+                height: 36px;
+                font-size: 24px;
             }
         }
     </style>
@@ -262,7 +270,7 @@
         </div>
         <article class="article-card">
           <div class="card-post">
-            <h4 class="card-post-title">Lorem Ipsum</h4>
+            <h4 class="card-post-title">Lorem Ipsum v0.0.2</h4>
             <p class="card-post-content">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ultrices urna feugiat orci auctor elementum. Phasellus vel justo in erat sodales pulvinar nec sed lorem. Morbi egestas est et accumsan bibendum. Phasellus elit lacus, volutpat at blandit in, tempus quis nibh. Vivamus porta, lacus tincidunt pharetra pellentesque, quam ligula tincidunt mi, a eleifend mi dolor eu turpis. Morbi vitae tellus ullamcorper, interdum lorem eu, ornare purus. Pellentesque turpis purus, tincidunt vitae auctor id, pretium ut sem. Curabitur lacus diam, vestibulum id erat sed, sodales ornare dui.</p>
             
             <div class="card-post-images image-track">
