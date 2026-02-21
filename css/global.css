@@ -293,7 +293,7 @@ html[data-theme=dark] .sun-icon {
 /* Close button */
 .close-btn {
 	position: absolute;
-	bottom: 50px;
+	bottom: 15%;
 	left: 50%;
 	transform: translateX(-50%);
 	color: var(--primary-color-2);
@@ -432,7 +432,7 @@ html[data-theme=dark] .sun-icon {
 .card-post-content {
 	font-size: 14px;
 	font-weight: 400;
-	line-height: 2;
+	line-height: 1.8;
 	text-align: left;
 	color: var(--primary-color-1);
 	width: 100%;

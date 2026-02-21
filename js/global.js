@@ -7,6 +7,7 @@ const dom = {
     hamburger: document.getElementById('hamburger'),
     slideMenu: document.getElementById('slideMenu'),
     headerContainer: document.getElementById('headerContainer'),
+    slideMenuCloseText: document.getElementById('slideMenuCloseText'),
     modal: document.getElementById('imageModal'),
     modalImage: document.getElementById('modalImage'),
     modalLoading: document.getElementById('modalLoading'),
@@ -62,6 +63,8 @@ const dom = {
         }
     });
 
+    dom.slideMenuCloseText.addEventListener('click', closeMenu);
+
     dom.slideMenu.addEventListener('click', (e) => {
         if (e.target === dom.slideMenu) closeMenu();
     });
@@ -91,92 +94,147 @@ const ImageGallery = {
     },
 
     setupTrackEvents(track) {
-        let isDragging = false;
-        let startX, scrollLeft, startTime;
-        let dragDistance = 0;
+    let isDragging = false;
+    let startX, scrollLeft, startTime, startY;
+    let dragDistance = 0;
+    let isHorizontalScroll = false;
+    let initialScrollLeft = 0;
 
-        // Mouse events
-        track.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            track.classList.add('dragging');
-            startX = e.pageX - track.offsetLeft;
-            scrollLeft = track.scrollLeft;
-            startTime = Date.now();
-            dragDistance = 0;
-            e.preventDefault();
-        });
+    // Mouse events (keep as is)
+    track.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        track.classList.add('dragging');
+        startX = e.pageX - track.offsetLeft;
+        scrollLeft = track.scrollLeft;
+        startTime = Date.now();
+        dragDistance = 0;
+        e.preventDefault();
+    });
 
-        track.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            e.preventDefault();
-            
-            const x = e.pageX - track.offsetLeft;
-            const walk = x - startX;
-            dragDistance = Math.abs(walk);
-            
-            if (dragDistance > this.config.dragThreshold) {
-                track.scrollLeft = scrollLeft - walk;
+    track.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        
+        const x = e.pageX - track.offsetLeft;
+        const walk = x - startX;
+        dragDistance = Math.abs(walk);
+        
+        if (dragDistance > this.config.dragThreshold) {
+            track.scrollLeft = scrollLeft - walk;
+        }
+    });
+
+    track.addEventListener('mouseup', (e) => {
+        if (!isDragging) return;
+        
+        track.classList.remove('dragging');
+        
+        const wasClick = dragDistance <= this.config.dragThreshold && 
+                        (Date.now() - startTime) < 200;
+        
+        if (wasClick) {
+            this.handleImageClick(e, track);
+        }
+        
+        isDragging = false;
+    });
+
+    track.addEventListener('mouseleave', () => {
+        isDragging = false;
+        track.classList.remove('dragging');
+    });
+
+    // ===== FIXED TOUCH EVENTS FOR MOBILE =====
+    track.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        track.classList.add('dragging');
+        startX = e.touches[0].pageX;
+        startY = e.touches[0].pageY;
+        scrollLeft = track.scrollLeft;
+        initialScrollLeft = track.scrollLeft;
+        startTime = Date.now();
+        dragDistance = 0;
+        isHorizontalScroll = false;
+        
+        // Don't prevent default on touchstart - let the browser decide
+    });
+
+    track.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        
+        const currentX = e.touches[0].pageX;
+        const currentY = e.touches[0].pageY;
+        const diffX = currentX - startX;
+        const diffY = currentY - startY;
+        const absDiffX = Math.abs(diffX);
+        const absDiffY = Math.abs(diffY);
+        
+        // Determine scroll direction
+        if (!isHorizontalScroll) {
+            // If horizontal movement is greater AND track can scroll horizontally
+            if (absDiffX > absDiffY && absDiffX > 5) {
+                isHorizontalScroll = true;
+                // Prevent default ONLY when we're sure it's horizontal scroll
+                e.preventDefault();
             }
-        });
-
-        track.addEventListener('mouseup', (e) => {
-            if (!isDragging) return;
+            // If vertical movement is greater, let the browser handle it
+            else if (absDiffY > absDiffX && absDiffY > 5) {
+                // This is a vertical scroll - clean up dragging state
+                isDragging = false;
+                track.classList.remove('dragging');
+                return; // Exit without preventing default
+            }
+        }
+        
+        // Handle horizontal scrolling
+        if (isHorizontalScroll) {
+            e.preventDefault(); // Prevent page scroll while horizontally dragging
             
+            // Calculate new scroll position
+            const walk = diffX;
+            dragDistance = absDiffX;
+            
+            // Apply horizontal scroll
+            track.scrollLeft = scrollLeft - walk;
+            
+            // Update visual feedback
+            if (absDiffX > this.config.dragThreshold) {
+                // We're definitely scrolling, not tapping
+            }
+        }
+    });
+
+    track.addEventListener('touchend', (e) => {
+        if (!isDragging) {
+            // Clean up if we already determined it was vertical scroll
             track.classList.remove('dragging');
-            
-            const wasClick = dragDistance <= this.config.dragThreshold && 
-                            (Date.now() - startTime) < 200;
-            
-            if (wasClick) {
-                this.handleImageClick(e, track);
-            }
-            
-            isDragging = false;
-        });
+            return;
+        }
+        
+        track.classList.remove('dragging');
+        
+        // Calculate if this was a tap (for opening modal)
+        const touchEndTime = Date.now();
+        const timeDiff = touchEndTime - startTime;
+        const wasTap = dragDistance <= this.config.dragThreshold && timeDiff < 200;
+        const didScroll = Math.abs(track.scrollLeft - initialScrollLeft) > 10;
+        
+        // Only open modal if it was a tap AND we didn't scroll
+        if (wasTap && !didScroll && e.changedTouches.length > 0) {
+            this.handleTouchTap(e, track);
+        }
+        
+        isDragging = false;
+        isHorizontalScroll = false;
+    });
 
-        track.addEventListener('mouseleave', () => {
-            isDragging = false;
-            track.classList.remove('dragging');
-        });
-
-        // Touch events
-        track.addEventListener('touchstart', (e) => {
-            isDragging = true;
-            track.classList.add('dragging');
-            startX = e.touches[0].pageX - track.offsetLeft;
-            scrollLeft = track.scrollLeft;
-            startTime = Date.now();
-            dragDistance = 0;
-        });
-
-        track.addEventListener('touchmove', (e) => {
-            if (!isDragging) return;
-            e.preventDefault();
-            
-            const x = e.touches[0].pageX - track.offsetLeft;
-            const walk = x - startX;
-            dragDistance = Math.abs(walk);
-            
-            if (dragDistance > this.config.dragThreshold) {
-                track.scrollLeft = scrollLeft - walk;
-            }
-        });
-
-        track.addEventListener('touchend', (e) => {
-            if (!isDragging) return;
-            
-            track.classList.remove('dragging');
-            
-            const wasTap = dragDistance <= this.config.dragThreshold && 
-                          (Date.now() - startTime) < 200;
-            
-            if (wasTap && e.changedTouches.length > 0) {
-                this.handleTouchTap(e, track);
-            }
-            
-            isDragging = false;
-        });
-    },
+    // Cancel touch events if they get interrupted
+    track.addEventListener('touchcancel', () => {
+        isDragging = false;
+        isHorizontalScroll = false;
+        track.classList.remove('dragging');
+    });
+},
 
     handleImageClick(e, track) {
         const images = Array.from(track.querySelectorAll('.card-post-image'));
