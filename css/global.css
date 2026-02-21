@@ -103,7 +103,6 @@ body {
 	justify-content: space-between;
 	align-items: center;
 	width: 100%;
-	height: 70px;
 	max-width: var(--main-max-width);
 	background-color: var(--main-card-bg);
 	border: var(--main-border);
@@ -415,7 +414,7 @@ html[data-theme=dark] .sun-icon {
 
 .card-header {
 	position: sticky;
-	top: 100px;
+	top: 104px;
 	z-index: 998;
 	background-color: var(--main-bg-color);
 }
