@@ -12,6 +12,7 @@
 	--profile-section-padding-x: var(--main-padding-x);
 	--main-max-width: 650px;
 	--header-padding-y: 15px;
+	--header-content-height: 70px;
 	--header-box-shadow: 1px 1px 1px var(--primary-color-3);
 	--card-box-shadow: 0px 4px 4px var(--primary-color-3);
 	--card-margin-bottom:20px;
@@ -71,16 +72,7 @@ body {
 }
 
 /* ============ HEADER COMPONENT ============ */
-.header-wrapper {
-	position: fixed;
-	z-index: 999;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100px;
-	background-color: var(--main-bg-color);
-}
-
+ 
 .header-container {
 	position: fixed;
 	top: 0;
@@ -103,6 +95,7 @@ body {
 	justify-content: space-between;
 	align-items: center;
 	width: 100%;
+	height: var(--header-content-height);
 	max-width: var(--main-max-width);
 	background-color: var(--main-card-bg);
 	border: var(--main-border);
@@ -313,7 +306,7 @@ html[data-theme=dark] .sun-icon {
 
 .menu-footer {
 	position: absolute;
-	bottom: 15%;
+	bottom: 13%;
 	left: 50%;
 	transform: translateX(-50%);
 	font-size: 18px;
@@ -414,7 +407,7 @@ html[data-theme=dark] .sun-icon {
 
 .card-header {
 	position: sticky;
-	top: 104px;
+	top:calc(var(--header-padding-y) * 2 + var(--header-content-height));
 	z-index: 998;
 	background-color: var(--main-bg-color);
 }
@@ -789,6 +782,8 @@ html[data-theme=dark] .sun-icon {
 		--header-padding-x: 25px;
 		--card-title-padding-x: 22px;
 		--profile-section-padding-x: 22px;
+		--header-content-height: 55px;
+		--header-padding-y: 10px;
 	}
 	.header-content{
 		border: none;
