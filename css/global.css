@@ -207,9 +207,7 @@ html[data-theme=dark] .sun-icon {
 	left: 0;
 	width: 100%;
 	height: 100vh;
-	background: hsla(0, 0%, 71%, .1);
-	backdrop-filter: blur(3rem);
-	-webkit-backdrop-filter: blur(3rem);
+	background-color: var(--main-bg-color);
 	display: flex;
 	justify-content: center;
 	align-items: flex-start;
@@ -219,6 +217,9 @@ html[data-theme=dark] .sun-icon {
 
 .slide-menu.active {
 	top: 0;
+	background: hsla(0, 0%, 71%, .1);
+	backdrop-filter: blur(3rem);
+	-webkit-backdrop-filter: blur(3rem);
 }
 
 .menu-content {
@@ -246,7 +247,7 @@ html[data-theme=dark] .sun-icon {
 
 .slide-menu.active .menu-items li {
 	opacity: 1;
-	transform: translateY(150px);
+	transform: translateY(130px);
 }
 
 .slide-menu.active .menu-items li:nth-child(1) {
