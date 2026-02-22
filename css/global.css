@@ -10,6 +10,7 @@
 	--header-padding-x: var(--main-padding-x);
 	--card-title-padding-x: var(--main-padding-x);
 	--profile-section-padding-x: var(--main-padding-x);
+	--profile-section-margin-y: 35px;
 	--main-max-width: 650px;
 	--header-padding-y: 15px;
 	--header-content-height: 70px;
@@ -79,7 +80,7 @@ body {
 /* ============ HEADER COMPONENT ============ */
  
 .header-container {
-	position: fixed;
+	position: sticky;
 	top: 0;
 	left: 0;
 	width: 100%;
@@ -349,8 +350,7 @@ html[data-theme=dark] .sun-icon {
 	max-width: var(--main-max-width);
 	padding: 0 calc(var(--profile-section-padding-x) - 10px);
 	position: relative;
-	margin-top: 150px;
-	margin-bottom: 35px;
+	margin: var(--profile-section-margin-y) 0 ;
 }
 
 .profile-content {
