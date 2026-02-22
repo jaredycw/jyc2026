@@ -18,6 +18,11 @@
 	--card-margin-bottom:20px;
 	--main-card-bg: #ffffff;
 	--main-bg-color: #f7f7f7;
+	--logo-letter-spacing: 1.5rem;
+	--font-weight-light: 300;
+	--font-weight-regular: 400;
+	--font-weight-medium: 500;
+	--font-weight-bold: 600;
 }
 
 html[data-theme=dark] {
@@ -131,7 +136,7 @@ body {
 	height: 25px;
 	fill: none;
 	stroke: currentColor;
-	stroke-width: 2;
+	stroke-width: 1.5;
 	stroke-linecap: round;
 	stroke-linejoin: round;
 }
@@ -150,7 +155,10 @@ html[data-theme=dark] .sun-icon {
 
 .logo-text {
 	font-size: 22px;
-	font-weight: 100;
+	font-weight: var(--font-weight-light);
+	margin: 0 !important;
+	letter-spacing: var(--logo-letter-spacing);
+	margin-right: calc(-1 * var(--logo-letter-spacing)) !important;
 	color: var(--primary-color-2);
 	margin: 0 20px;
 }
@@ -163,8 +171,8 @@ html[data-theme=dark] .sun-icon {
 }
 
 .hamburger {
-	width: 28px;
-	height: 28px;
+	width: 25px;
+	height: 25px;
 	background: none;
 	border: none;
 	cursor: pointer;
@@ -181,14 +189,14 @@ html[data-theme=dark] .sun-icon {
 }
 
 .hamburger span {
-	width: 28px;
-	height: 2.5px;
+	width: 25px;
+	height: 2px;
 	background: var(--primary-color-2);
 	transition: all 0.3s ease;
 }
 
 .hamburger.active span:nth-child(1) {
-	transform: rotate(45deg) translate(8px, 8px);
+	transform: rotate(45deg) translate(6px, 6px);
 }
 
 .hamburger.active span:nth-child(2) {
@@ -197,7 +205,7 @@ html[data-theme=dark] .sun-icon {
 }
 
 .hamburger.active span:nth-child(3) {
-	transform: rotate(-45deg) translate(4px, -4px);
+	transform: rotate(-45deg) translate(6px, -6px);
 }
 
 /* ============ NAVIGATION ============ */
@@ -210,7 +218,7 @@ html[data-theme=dark] .sun-icon {
 	background-color: var(--main-bg-color);
 	display: flex;
 	justify-content: center;
-	align-items: flex-start;
+	align-items: center;
 	transition: top 0.6s cubic-bezier(0.77, 0.2, 0.05, 1);
 	z-index: 1000;
 }
@@ -231,7 +239,6 @@ html[data-theme=dark] .sun-icon {
 
 .slide-menu.active .menu-content {
 	opacity: 1;
-	transform: translateY(0);
 }
 
 .menu-items {
@@ -247,7 +254,7 @@ html[data-theme=dark] .sun-icon {
 
 .slide-menu.active .menu-items li {
 	opacity: 1;
-	transform: translateY(130px);
+	transform: translateY(0);
 }
 
 .slide-menu.active .menu-items li:nth-child(1) {
@@ -273,7 +280,7 @@ html[data-theme=dark] .sun-icon {
 .menu-items li a {
 	color: var(--primary-color-2);
 	font-size: 48px;
-	font-weight: 700;
+	font-weight: var(--font-weight-bold);
 	text-decoration: none;
 	text-transform: uppercase;
 	letter-spacing: 2px;
@@ -357,7 +364,7 @@ html[data-theme=dark] .sun-icon {
 
 .profile-name {
 	font-size: 28px;
-	font-weight: 500;
+	font-weight: var(--font-weight-medium);
 	line-height: 1.5;
 	text-align: left;
 	text-transform: uppercase;
@@ -366,7 +373,7 @@ html[data-theme=dark] .sun-icon {
 
 .profile-tagline {
 	font-size: 16px;
-	font-weight: 500;
+	font-weight: var(--font-weight-regular);
 	line-height: 1.5;
 	text-align: left;
 	text-transform: uppercase;
@@ -375,7 +382,7 @@ html[data-theme=dark] .sun-icon {
 
 .profile-email {
 	font-size: 14px;
-	font-weight: 500;
+	font-weight: var(--font-weight-regular);
 	line-height: 1;
 	text-align: left;
 	color: var(--primary-color-2);
@@ -413,7 +420,7 @@ html[data-theme=dark] .sun-icon {
 
 .card-title {
 	font-size: 16px;
-	font-weight: 400;
+	font-weight: var(--font-weight-medium);
 	line-height: 1;
 	letter-spacing: 4px;
 	text-align: left;
@@ -445,7 +452,7 @@ html[data-theme=dark] .sun-icon {
 
 .card-post-title {
 	font-size: 16px;
-	font-weight: 600;
+	font-weight: var(--font-weight-medium);
 	line-height: 1.5;
 	text-align: left;
 	color: var(--primary-color-1);
@@ -456,7 +463,7 @@ html[data-theme=dark] .sun-icon {
 
 .card-post-content {
 	font-size: 14px;
-	font-weight: 400;
+	font-weight: var(--font-weight-regular);
 	line-height: 1.8;
 	text-align: left;
 	color: var(--primary-color-1);
@@ -618,7 +625,7 @@ html[data-theme=dark] .sun-icon {
 	transform: translateX(-50%);
 	color: rgba(255, 255, 255, 0.5);
 	font-size: 14px;
-	font-weight: 300;
+	font-weight: var(--font-weight-light);
 	letter-spacing: 1px;
 	z-index: 10001;
 	background: none;
@@ -693,25 +700,6 @@ html[data-theme=dark] .sun-icon {
 	margin-bottom: var(--card-margin-bottom);
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Dark mode support */
-[data-theme="dark"] .loading-indicator {
-    color: #999;
-}
-
-[data-theme="dark"] .loading-spinner {
-    border-color: #444;
-    border-top-color: #64b5f6;
-}
-
-[data-theme="dark"] .end-message {
-    color: #999;
-}
-
 /* ============ CSS KEYFRAMES ============ */
 @keyframes modalFadeIn {
 	to {
@@ -745,7 +733,13 @@ html[data-theme=dark] .sun-icon {
 	.card-post-image {
 		height: 250px;
 	}
-
+/* ============ 768 SLIDE MENU ============ */
+	.slide-menu{
+		align-items: flex-start;
+	}
+	.slide-menu.active .menu-content {
+		transform: translateY(130px);
+	}
 /* ============ 768 MODAL ============ */
 	.modal-close {
 		top: 20px;
@@ -801,6 +795,12 @@ html[data-theme=dark] .sun-icon {
 	.card-title {
 		border:none;
 		border-bottom: 1px solid var(--primary-color-2);
+	}
+	.end-message{
+		border:none;
+		border-radius: 0;
+		border-top: 1px solid var(--primary-color-2);
+		margin-bottom: 0;
 	}
 
 /* ============ 480 CARD POST IMAGE ============ */
